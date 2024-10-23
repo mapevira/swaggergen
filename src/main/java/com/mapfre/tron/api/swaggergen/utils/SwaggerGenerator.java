@@ -4,7 +4,10 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Map;
+import java.util.stream.Stream;
 
 /**
  * Utility class responsible for generating a Swagger file (in YAML format)
@@ -48,6 +51,21 @@ public class SwaggerGenerator {
         writer.write("info:\n  description: 'API TRON Objects'\n  version: '1.0.0'\n  title: 'API TRON Objects'\n");
         writer.write("paths: {}\n");
         writer.write("definitions:\n");
+
+        // Write the initial definitions section
+        String sourceFilePath = "source_definitions.txt";
+        try (Stream<String> lines = Files.lines(Paths.get(sourceFilePath))) {
+            lines.forEach(line -> {
+                try {
+                    writer.write(line + System.lineSeparator());
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);;
+                }
+            });
+
+        } catch (IOException e) {
+            log.error(e.getMessage(), e);
+        }
 
         // Loop through the models and add each model's definition to the Swagger file
         for (String modelName : models.keySet()) {

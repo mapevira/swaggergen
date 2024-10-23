@@ -5,6 +5,113 @@ info:
   title: 'API TRON Objects'
 paths: {}
 definitions:
+  About:
+    type: object
+    required:
+    - name
+    - dependencies
+    - profile
+    properties:
+      name:
+        description: Application name
+        example: 'nwt_lss_api_be:20.07.03-SNAPSHOT'
+        type: string
+      dependencies:
+        description: BE and CMN dependencies version
+        example: 'nwt_cmn_api_be:20.07.03-SNAPSHOT'
+        type: array
+        items:
+          type: string
+      profile:
+        description: Profile
+        example: Newtron access
+        type: string
+  Error:
+    type: object
+    required:
+    - code
+    - message
+    - type
+    - component
+    - application
+    - timestamp
+    - errors
+    properties:
+      code:
+        description: Error code
+        example: '403'
+        type: string
+      message:
+        description: Error description
+        example: Internal error in the service
+        type: string
+      type:
+        description: Error type
+        example: Null pointer
+        type: string
+      context:
+        description: Error context
+        example: Process query action
+        type: string
+      exception:
+        description: Exception
+        example: NullPointerException
+        type: string
+      component:
+        description: Error component
+        example: ProcessImpl
+        type: string
+      application:
+        description: Error application
+        example: Process_Backend
+        type: string
+      timestamp:
+        description: Error time
+        example: '2019-01-13T18:27:41.511Z'
+        type: string
+        format: date-time
+      errors:
+        description: Error list
+        type: array
+        items:
+          $ref: '#/definitions/ErrorComponent'
+  ErrorComponent:
+    type: object
+    required:
+    - code
+    properties:
+      code:
+        description: Error code
+        example: '403'
+        type: string
+      message:
+        description: Error message
+        example: Internal error
+        type: string
+      component:
+        description: Error component
+        example: ProcessImpl
+        type: string
+      rootcase:
+        description: Error cause
+        example: NullPointerException
+        type: string
+      info:
+        description: Error information
+        type: array
+        items:
+          $ref: '#/definitions/ErrorInfo'
+  ErrorInfo:
+    type: object
+    properties:
+      key:
+        description: Key
+        example: key
+        type: string
+      value:
+        description: Value
+        example: value
+        type: string
   OThpFshS:
     type: object
     properties:

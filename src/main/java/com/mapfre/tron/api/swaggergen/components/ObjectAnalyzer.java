@@ -1,6 +1,7 @@
-package com.mapfre.tron.api.swaggergen.utils;
+package com.mapfre.tron.api.swaggergen.components;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Field;
 import java.util.*;

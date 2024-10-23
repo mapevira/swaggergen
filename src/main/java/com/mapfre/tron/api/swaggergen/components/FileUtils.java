@@ -1,4 +1,6 @@
-package com.mapfre.tron.api.swaggergen.utils;
+package com.mapfre.tron.api.swaggergen.components;
+
+import org.springframework.stereotype.Component;
 
 import java.io.BufferedReader;
 import java.io.File;

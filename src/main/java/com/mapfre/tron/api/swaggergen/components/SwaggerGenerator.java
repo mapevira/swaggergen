@@ -1,12 +1,17 @@
-package com.mapfre.tron.api.swaggergen.utils;
+package com.mapfre.tron.api.swaggergen.components;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Stream;
 
 /**
@@ -26,8 +31,12 @@ import java.util.stream.Stream;
  * @version 23/10/2024 - 09:52
  * @since jdk 1.17
  */
+@Component
 @Slf4j
 public class SwaggerGenerator {
+
+    @Value("${app.env.excludedClasses}")
+    private String excludedClasses;
 
     /**
      * Generates a Swagger 2.0 YAML file with model definitions from the provided map of models.
@@ -38,7 +47,7 @@ public class SwaggerGenerator {
      * @param filePath the path where the Swagger YAML file should be generated
      * @throws IOException if an I/O error occurs while writing to the file
      */
-    public static void generateSwaggerFile(final Map<String, Map<String, String>> models, final String filePath)
+    public void generateSwaggerFile(final Map<String, Map<String, String>> models, final String filePath)
             throws IOException {
 
         log.info("SwaggerGenerator running...");
@@ -74,13 +83,8 @@ public class SwaggerGenerator {
             Map<String, String> properties = models.get(modelName);
 
             // Skip certain models that should not be included in the Swagger file
-            if (properties != null && !properties.isEmpty()
-                    && !"AObjCPT".equals(modelName)
-                    && !"ObjNwtPrcAux".equals(modelName)
-                    && !"ObjNwtDto".equals(modelName)
-                    && !"Dates".equals(modelName)
-                    && !"CInsConstant".equals(modelName)
-                    && !"AObjCCT".equals(modelName)) {
+            Set<String> excludedSet = new HashSet<>(Arrays.asList(excludedClasses.split(",")));
+            if (properties != null && !properties.isEmpty() && !excludedSet.contains(modelName)) {
 
                 // Write the model's name and structure (type: object) to the file
                 writer.write("  " + modelName + ":\n    type: object\n    properties:\n");
@@ -113,6 +117,8 @@ public class SwaggerGenerator {
         }
 
         writer.close();
+
+        log.info("SwaggerGenerator stopped");
     }
 
 }

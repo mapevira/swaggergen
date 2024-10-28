@@ -30,6 +30,8 @@ public class AppRunner implements CommandLineRunner {
     public void run(String... args) throws Exception {
         log.info("SwaggerApp running...");
 
+        long startTime = System.currentTimeMillis();
+
         // Define the source directory where the Java files are located
         File sourceDir = new File("src/main/java/com/mapfre/nwt");
 
@@ -63,6 +65,7 @@ public class AppRunner implements CommandLineRunner {
         // Generate the Swagger YAML file with the collected models
         swaggerGenerator.generateSwaggerFile(swaggerModels, "swagger.yaml");
 
-        log.info("SwaggerApp stopped");
+        long endTime = System.currentTimeMillis();
+        log.info("SwaggerApp stopped in {} ms", (endTime - startTime));
     }
 }

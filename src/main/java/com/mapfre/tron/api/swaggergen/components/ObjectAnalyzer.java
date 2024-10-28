@@ -66,6 +66,8 @@ public class ObjectAnalyzer {
             }
             // Handle primitive types and map them to Swagger types
             else if (isPrimitive(field.getType())) {
+                // se busca la descripcion en la base de datos
+
                 fieldType = switch (fieldType) {
                     case "int", "Integer" -> "integer\n        format: int32";
                     case "Date", "long", "Long" -> "integer\n        format: int64";

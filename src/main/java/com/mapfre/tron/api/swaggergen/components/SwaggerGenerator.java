@@ -1,5 +1,8 @@
 package com.mapfre.tron.api.swaggergen.components;
 
+import com.mapfre.tron.api.swaggergen.entity.Property;
+import com.mapfre.tron.api.swaggergen.repository.OracleRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,10 +11,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Stream;
 
 /**
@@ -32,11 +32,14 @@ import java.util.stream.Stream;
  * @since jdk 1.17
  */
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class SwaggerGenerator {
 
     @Value("${app.env.excludedClasses}")
     private String excludedClasses;
+
+    private final OracleRepository oracleRepository;
 
     /**
      * Generates a Swagger 2.0 YAML file with model definitions from the provided map of models.
@@ -91,26 +94,36 @@ public class SwaggerGenerator {
 
                 // Loop through the properties of the model and write each property to the file
                 properties.keySet().stream()
-                    .filter(property -> !"atrPT".equals(property))
-                    .forEach(property -> {
-                        try {
-                            // Handle array types
-                            if (properties.get(property).contains("type: array")) {
-                                writer.write("      " + property + ":\n" + properties.get(property) + "\n");
+                        .filter(property -> !"atrPT".equals(property))
+                        .forEach(property -> {
+                            try {
+                                // Handle array types
+                                if (properties.get(property).contains("type: array")) {
+                                    writer.write("      " + property + ":\n" + properties.get(property) + "\n");
+                                    log.info("Writing property: {}", property);
+                                }
+                                // Handle references to other models
+                                else if (properties.get(property).contains("$") && !"oTrnPrcS".equals(property)) {
+                                    String ref = properties.get(property).substring(properties.get(property).indexOf("$"), properties.get(property).length() - 1);
+                                    writer.write("      " + property + ":\n        " + ref + "'\n");
+                                }
+                                // Handle simple properties
+                                else if (!"serialVersionUID".equals(property) && !"oTrnPrcS".equals(property)) {
+                                    writer.write("      " + property + ":\n        type: " + properties.get(property) + "\n");
+
+                                    // Add description to properties
+                                    List<Property> propertyList = oracleRepository.findDescriptionByProperty(property);
+                                    if (propertyList != null && !propertyList.isEmpty()) {
+                                        String description = propertyList.get(0).getDescription();
+                                        if (description != null && !description.trim().isEmpty()) {
+                                            writer.write("        description: " + description + "\n");
+                                        }
+                                    }
+                                }
+                            } catch (IOException e) {
+                                log.error(e.getMessage(), e);
                             }
-                            // Handle references to other models
-                            else if (properties.get(property).contains("$") && !"oTrnPrcS".equals(property)) {
-                                String ref = properties.get(property).substring(properties.get(property).indexOf("$"), properties.get(property).length() - 1);
-                                writer.write("      " + property + ":\n        " + ref + "'\n");
-                            }
-                            // Handle simple properties
-                            else if (!"serialVersionUID".equals(property) && !"oTrnPrcS".equals(property)) {
-                                writer.write("      " + property + ":\n        type: " + properties.get(property) + "\n");
-                            }
-                        } catch (IOException e) {
-                            log.error(e.getMessage(), e);
-                        }
-                    });
+                        });
 
             }
 
